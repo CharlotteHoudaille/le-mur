@@ -1,0 +1,6 @@
+# Caddy, devant l'application en production : HTTPS automatique (Let's Encrypt)
+# puis tout est renvoyé vers le serveur Node (service « web », port 3000).
+{$SITE_DOMAIN} {
+	encode zstd gzip
+	reverse_proxy web:3000
+}

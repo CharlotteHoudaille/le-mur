@@ -1,0 +1,29 @@
+# Ajouts pour le serveur en ligne :
+#   docker compose -f docker-compose.yml -f compose.server.yaml up -d --build
+#
+# - l'application n'est plus exposée directement (seul Caddy l'est)
+# - Caddy écoute sur 80/443 et obtient le certificat HTTPS tout seul
+services:
+  web:
+    ports: !reset []
+    restart: unless-stopped
+
+  caddy:
+    image: caddy:2.11-alpine
+    restart: unless-stopped
+    depends_on:
+      - web
+    environment:
+      SITE_DOMAIN: ${SITE_DOMAIN:-student13.wt.thomasjuldo.com}
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+      - caddy-config:/config
+
+volumes:
+  caddy-data:
+  caddy-config:

@@ -37,6 +37,18 @@ Sans fichier `.env` (ou sans clé), l'application démarre quand même en **mode
 | `DEMO_MODE` | `true` pour forcer les données d'exemple |
 | `PORT` | Port du serveur, 3000 par défaut |
 
+### En ligne (serveur avec un nom de domaine)
+
+Le site tourne sur <https://student13.wt.thomasjuldo.com>. Sur le serveur :
+
+```bash
+git clone https://github.com/CharlotteHoudaille/le-mur.git && cd le-mur
+# créer .env (LASTFM_API_KEY, LASTFM_USER...) ; SITE_DOMAIN=mon.domaine si autre domaine
+docker compose -f docker-compose.yml -f compose.server.yaml up -d --build
+```
+
+[compose.server.yaml](compose.server.yaml) ajoute **Caddy** devant l'application : il obtient le certificat HTTPS tout seul et renvoie vers le serveur Node, qui n'est plus exposé directement ([Caddyfile](Caddyfile)).
+
 ### Sans Docker
 
 ```bash
