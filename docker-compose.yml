@@ -1,0 +1,11 @@
+services:
+  web:
+    build: .
+    ports:
+      - "3000:3000"
+    # Les secrets (LASTFM_API_KEY...) sont lus dans .env, jamais commité.
+    # Sans .env, l'app démarre quand même, en mode démo.
+    env_file:
+      - path: .env
+        required: false
+    restart: unless-stopped
