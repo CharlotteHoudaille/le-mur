@@ -1,14 +1,15 @@
 # Le mur de Charlotte
 
-Mes écoutes récentes [Last.fm](https://www.last.fm) encadrées au-dessus du lit de ma chambre : un mur vert sauge, une galerie de pochettes, mon prénom en néon, une platine vinyle et le soleil qui entre par la fenêtre.
+Mes écoutes récentes [Last.fm](https://www.last.fm) affichées en vrac sur le mur de ma chambre, en 3D (three.js) : des dizaines d'affiches collées les unes sur les autres au-dessus de mon lit, et le soleil qui entre par la fenêtre.
 
-- **1 cadre = 1 album** écouté récemment, avec la date de la dernière écoute sous la pochette.
-- **Les plus récents en premier** (en haut à gauche). La platine joue le dernier album, et sa pochette est posée au sol.
-- **Pastille `×N`** : nombre d'écoutes de l'album.
-- **Couleur** : la couleur dominante de la pochette (fiche détaillée, étiquette du vinyle).
-- **Sticker « EN ÉCOUTE »** sur le morceau en cours.
-- Un clic sur un cadre ouvre la liste de toutes ses écoutes.
-- Le champ en haut permet de voir le mur de n'importe quel pseudo Last.fm public.
+- **1 affiche = 1 album** écouté récemment (40 au maximum). Trois styles : la pochette imprimée, une affiche de concert (pochette + nom géant + date de la dernière écoute), ou une affiche typographique s'il n'y a pas de pochette.
+- **Les plus récentes** sont près du centre et collées **par-dessus** les autres.
+- **Taille** : plus un album est écouté, plus son affiche est grande.
+- **L'affiche jaune** résume les chiffres : écoutes, albums, artistes, et l'album en tête d'affiche.
+- **La platine** sur le petit meuble joue le dernier album : sa pochette est sur l'étiquette du disque, qui tourne à 33 tours si l'écoute date de moins de 15 minutes.
+- **Lumière** : le soleil (une SpotLight avec un gobo : la fenêtre et l'ombre d'une plante) éclaire le mur et les affiches ; chaque affiche porte une ombre douce.
+- Survoler une affiche la décolle du mur ; un clic ouvre la liste de toutes ses écoutes.
+- Le champ en haut à droite permet de voir le mur de n'importe quel pseudo Last.fm public.
 
 ## Lancer l'application
 
@@ -58,7 +59,8 @@ navigateur  ──►  serveur Node/Express  ──►  Last.fm   user.getRecent
 - **Si Last.fm tombe** : le serveur renvoie la dernière réponse connue (bandeau rouge « Last.fm ne répond pas »). S'il n'a rien en cache, la page affiche « Mur fermé pour travaux » avec un bouton Réessayer, jamais un écran vide.
 - **Pochettes manquantes** ([server/deezer.js](server/deezer.js)) : quand Last.fm n'a pas l'image d'un album, le serveur la cherche dans l'API publique de Deezer (artiste + album, puis artiste + titre). Les recherches sont gardées 24 h ; si Deezer ne répond pas, l'affiche devient simplement typographique.
 - **Pochettes** : le serveur reconstruit lui-même l'URL de l'image à partir d'un nom de fichier vérifié (32 caractères hexadécimaux), il ne peut donc pas être utilisé pour appeler une autre adresse. Les images sont gardées 24 h.
-- **Une seule page** : toute la chambre est une scène dessinée à taille fixe (1600×900, ou 900×1700 sur téléphone) puis mise à l'échelle pour tenir dans l'écran. Les 12 albums les plus récents sont encadrés (6 sur téléphone), la grille de cadres est calculée pour remplir la place disponible.
+- **Une seule page** : la scène 3D remplit l'écran ; la caméra est cadrée pour que le haut du lit soit toujours en bas de l'écran, et la zone d'affiches s'adapte (plus haute sur téléphone).
+- **three.js est servi par notre serveur** (`/vendor/three/...`, depuis `node_modules`), pas par un CDN : le navigateur ne parle qu'à notre serveur.
 
 ## Structure
 
@@ -70,12 +72,22 @@ server/
   cache.js    cache mémoire avec durée de vie
   demo.js     données et pochettes d'exemple
 public/
-  index.html  structure de la page + le lit et la fenêtre (SVG)
-  style.css   le mur, les affiches, la lumière, le néon, le sol
-  app.js      chargement des données, création et disposition des affiches
+  index.html  structure de la page (canvas 3D + interface)
+  style.css   interface, grain, fiche détaillée
+  app.js      chargement des données, regroupement par album, fiche détaillée
+  posters.js  dessin des affiches sur des <canvas> (textures)
+  scene.js    la chambre en three.js : mur, lumières, lit, affiches, survol
 ```
 
 ## Tester les cas demandés
 
 - **Cache** : `curl -i localhost:3000/api/tracks` deux fois → `X-Cache: MISS` puis `X-Cache: HIT`, et `docker compose logs` ne montre qu'un appel.
 - **Last.fm injoignable** : lancer le serveur avec `LASTFM_API_URL=http://127.0.0.1:9/` → la page affiche un message au lieu d'un écran blanc.
+
+## Crédits
+
+Modèles 3D de [Poly Haven](https://polyhaven.com), sous licence **CC0** (domaine public), dans `public/models/` :
+[Throw Pillows 01](https://polyhaven.com/a/throw_pillows_01) (coussins),
+[Side Table 01](https://polyhaven.com/a/side_table_01) (petit meuble),
+[Potted Plant 02](https://polyhaven.com/a/potted_plant_02) (plante).
+La tête de lit, les oreillers, la platine, le mur et les affiches sont construits dans le code (three.js).

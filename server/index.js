@@ -94,6 +94,11 @@ app.get("/api/demo-cover/:index.svg", (req, res) => {
 
 app.get("/api/health", (_req, res) => res.json({ ok: true, demo: DEMO_MODE }));
 
+// three.js est servi par NOTRE serveur (pas de CDN) : le navigateur ne parle qu'à nous
+const THREE_DIR = path.join(__dirname, "..", "node_modules", "three");
+app.use("/vendor/three", express.static(path.join(THREE_DIR, "build"), { maxAge: "7d" }));
+app.use("/vendor/three-addons", express.static(path.join(THREE_DIR, "examples", "jsm"), { maxAge: "7d" }));
+
 app.use(express.static(path.join(__dirname, "..", "public")));
 
 app.listen(PORT, () => {

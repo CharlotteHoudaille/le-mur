@@ -1,387 +1,107 @@
 :root {
-  --wall: #a9b59d;          /* peinture sauge */
   --ink: #1b1a18;
   --paper: #f6f3ed;
   --red: #c8442b;
-  --neon: #2f9bff;
   --display: "Anton", "Impact", "Arial Narrow Bold", sans-serif;
   --mono: "Space Mono", ui-monospace, "Cascadia Mono", monospace;
-  --hand: "Caveat", "Segoe Print", cursive;
-  --noise: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .55 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-  --noise-soft: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='260' height='260'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.6' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .14 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
   color-scheme: light;
   font-family: var(--mono);
 }
 
 * { box-sizing: border-box; }
 
-/* Une seule page : rien ne défile */
+/* Une seule page, plein écran, rien ne défile */
 html, body {
   margin: 0;
   height: 100%;
   overflow: hidden;
-}
-
-/* ---------- Le mur ---------- */
-body {
-  position: relative;
+  background: #8f9a85;
   color: var(--ink);
-  background-color: var(--wall);
-  background-image:
-    radial-gradient(ellipse 50% 35% at 70% 30%, rgba(255, 255, 255, 0.08), transparent),
-    var(--noise-soft);
 }
-/* relief du plâtre */
-body::before {
-  content: "";
+
+#room {
   position: fixed;
   inset: 0;
-  pointer-events: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='480' height='480'%3E%3Cfilter id='p' x='0' y='0' width='100%25' height='100%25'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.045' numOctaves='5' seed='4' stitchTiles='stitch'/%3E%3CfeDiffuseLighting surfaceScale='1.5' lighting-color='%23fff'%3E%3CfeDistantLight azimuth='225' elevation='60'/%3E%3C/feDiffuseLighting%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23p)'/%3E%3C/svg%3E");
-  background-size: 480px;
-  mix-blend-mode: soft-light;
-  opacity: 0.5;
-}
-/* lumière de la pièce : plafond plus sombre, coins, chaleur de la lampe */
-body::after {
-  content: "";
-  position: fixed;
-  inset: 0;
-  z-index: 3;
-  pointer-events: none;
-  background:
-    linear-gradient(rgba(20, 28, 20, 0.32), transparent 22%),
-    radial-gradient(ellipse 45% 55% at 18% 78%, rgba(255, 200, 130, 0.16), transparent 70%),
-    radial-gradient(ellipse 120% 95% at 50% 45%, transparent 58%, rgba(15, 20, 15, 0.38));
-}
-
-/* ---------- Le sol (pleine largeur) ---------- */
-.floor-band {
-  position: fixed;
-  left: 0; right: 0; bottom: 0;
-  top: var(--floor-top, 75%);
-  z-index: 0;
-}
-.plinth {
-  position: relative;
-  height: var(--plinth, 22px);
-  background: linear-gradient(#ffffff, #f2eee5 12%, #e8e2d6 20%, #f0ebe2 30%, #ddd6c8 80%, #c8c0b0);
-  box-shadow: 0 -6px 12px -2px rgba(20, 28, 20, 0.25);
-}
-.parquet {
-  position: absolute;
-  left: 0; right: 0; bottom: 0;
-  top: var(--plinth, 22px);
-  overflow: hidden;
-  background: #8d6038;
-}
-.parquet::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: -60%;
-  width: 220%;
-  height: 360%;
-  transform-origin: 50% 0;
-  transform: perspective(560px) rotateX(66deg);
-  background:
-    linear-gradient(rgba(25, 12, 2, 0.5), transparent 6%),
-    radial-gradient(ellipse 18% 55% at 70% 25%, rgba(255, 238, 205, 0.25), transparent 70%),
-    repeating-linear-gradient(90deg, rgba(60, 32, 10, 0.55) 0 1px, transparent 1px 38px),
-    repeating-linear-gradient(0deg, transparent 0 257px, rgba(60, 32, 10, 0.4) 257px 258px),
-    repeating-linear-gradient(90deg, transparent 0 38px, rgba(255, 225, 180, 0.12) 38px 76px, transparent 76px 114px),
-    repeating-linear-gradient(90deg, transparent 0 152px, rgba(70, 35, 8, 0.14) 152px 190px, transparent 190px 266px),
-    linear-gradient(#c49464, #d4a776 40%, #bd8b5a),
-    var(--noise);
-}
-
-/* ---------- La scène, dessinée à taille fixe puis mise à l'échelle ---------- */
-.stage {
-  position: fixed;
-  left: 0;
-  top: 0;
-  z-index: 1;
-  transform-origin: 0 0;
-}
-.stage > * { position: absolute; }
-
-/* soleil de la fenêtre (tombe aussi sur les cadres) */
-.sunlight {
-  z-index: 50;
-  pointer-events: none;
-  mix-blend-mode: soft-light;
-}
-.sunlight svg { display: block; width: 100%; height: auto; }
-.sunlight .leaves {
-  transform-origin: 700px 560px;
-  animation: breeze 9s ease-in-out infinite alternate;
-}
-@keyframes breeze {
-  from { transform: rotate(-1.2deg); }
-  to   { transform: rotate(1.6deg); }
-}
-
-/* ---------- Néon sur plaque de plexiglas ---------- */
-.sign {
-  z-index: 5;
-  transform: translateX(-50%);
-  padding: 6px 34px 14px;
-  border-radius: 18px;
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.16), rgba(255, 255, 255, 0.03) 45%, rgba(255, 255, 255, 0.09));
-  border: 1px solid rgba(255, 255, 255, 0.4);
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.45),
-    8px 16px 22px -12px rgba(20, 28, 20, 0.45);
-  white-space: nowrap;
-}
-.sign::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  pointer-events: none;
-  --screw: #e9ebe8 0 2.5px, #8d918c 3.5px, transparent 4.5px;
-  background:
-    radial-gradient(circle at 14px 14px, var(--screw)),
-    radial-gradient(circle at calc(100% - 14px) 14px, var(--screw)),
-    radial-gradient(circle at 14px calc(100% - 14px), var(--screw)),
-    radial-gradient(circle at calc(100% - 14px) calc(100% - 14px), var(--screw));
-}
-.neon {
-  position: relative;
-  margin: 0;
-  font-family: "Yellowtail", "Brush Script MT", cursive;
-  font-weight: 400;
-  font-size: var(--neon-size, 64px);
-  line-height: 1.15;
-  color: #f2f9ff;
-  text-shadow:
-    0 0 2px #fff,
-    0 0 8px var(--neon),
-    0 0 18px var(--neon),
-    0 0 36px var(--neon),
-    0 0 70px rgba(47, 155, 255, 0.7);
-  animation: flicker 7s infinite;
-}
-.neon::after {
-  content: "";
-  position: absolute;
-  inset: -50% -15%;
-  z-index: -1;
-  background: radial-gradient(closest-side, rgba(47, 155, 255, 0.24), transparent);
-  pointer-events: none;
-}
-@keyframes flicker {
-  0%, 18%, 20%, 22%, 63%, 65%, 100% { opacity: 1; }
-  19%, 21%, 64% { opacity: 0.72; }
-}
-
-/* ---------- Post-it ---------- */
-.postit {
-  z-index: 6;
-  margin: 0;
-  padding: 26px 18px 16px;
-  background:
-    radial-gradient(ellipse 60% 40% at 100% 100%, rgba(120, 90, 0, 0.18), transparent),
-    linear-gradient(170deg, #fff38a, #ffe55c 70%, #f5d64a);
-  font-family: var(--hand);
-  font-size: 25px;
-  line-height: 1.12;
-  color: #2b2410;
-  transform: rotate(-3deg);
-  box-shadow:
-    0 1px 1px rgba(0, 0, 0, 0.12),
-    2px 4px 6px -2px rgba(0, 0, 0, 0.18),
-    10px 18px 16px -10px rgba(20, 28, 20, 0.5);
-}
-.postit::before {
-  content: "";
-  position: absolute;
-  top: 0; left: 0; right: 0;
-  height: 14px;
-  background: rgba(0, 0, 0, 0.04);
-}
-.postit:empty { display: none; }
-.postit b { color: #1d4ed8; font-weight: 600; }
-
-/* ---------- Galerie de cadres ---------- */
-.gallery { z-index: 10; }
-
-.frame {
-  --frame: #1d1c1a;
-  --frame-light: #3a3834;
-  --s: 150px; /* largeur du cadre, posée par app.js */
-  position: absolute;
+  width: 100vw;
+  height: 100vh;
+  height: 100dvh;
   display: block;
-  padding: calc(var(--s) * 0.045);
-  border: 0;
-  border-radius: 1px;
-  background: linear-gradient(135deg, var(--frame-light), var(--frame) 40%, var(--frame));
-  color: var(--ink);
-  font: inherit;
-  text-align: left;
-  cursor: pointer;
-  container-type: inline-size;
-  transform: rotate(var(--rot, 0deg));
-  /* cadre accroché : ombre douce vers le bas, légère ombre de contact */
-  box-shadow:
-    inset 0 0 0 1px rgba(255, 255, 255, 0.08),
-    0 1px 2px rgba(0, 0, 0, 0.3),
-    5px 12px 16px -4px rgba(20, 28, 20, 0.45);
-  transition: transform 0.25s ease, box-shadow 0.25s ease;
-  animation: hang 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) both;
-  animation-delay: var(--delay, 0s);
-}
-.frame.oak   { --frame: #b98d5f; --frame-light: #dcb98b; }
-.frame.white { --frame: #e9e5dd; --frame-light: #ffffff; }
-.frame:hover, .frame:focus-visible {
-  z-index: 20;
-  transform: rotate(0deg) translateY(-3px) scale(1.04);
-  box-shadow:
-    inset 0 0 0 1px rgba(255, 255, 255, 0.08),
-    0 2px 3px rgba(0, 0, 0, 0.3),
-    8px 22px 26px -6px rgba(20, 28, 20, 0.5);
-  outline: none;
-}
-.frame:focus-visible { outline: 3px solid #ffd34d; outline-offset: 4px; }
-@keyframes hang {
-  from { opacity: 0; transform: rotate(var(--rot, 0deg)) translateY(-10px); }
-  to   { opacity: 1; transform: rotate(var(--rot, 0deg)); }
+  touch-action: manipulation;
 }
 
-/* passe-partout blanc + biseau */
-.frame .mat {
-  display: flex;
-  flex-direction: column;
-  gap: 4cqi;
-  height: 100%;
-  padding: 8cqi 8cqi 6cqi;
-  background: var(--paper);
-  box-shadow: inset 1px 1px 3px rgba(0, 0, 0, 0.25);
-  overflow: hidden;
-}
-.frame .art {
-  display: block;
-  width: 100%;
-  aspect-ratio: 1;
-  object-fit: cover;
-  background: var(--c, #b4572f);
-  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.12), 0 0 0 2.5cqi #fff;
-}
-/* pas de pochette : une affiche typographique */
-.frame .art-type {
-  display: flex;
-  align-items: flex-end;
-  padding: 6cqi;
-  color: var(--on-c, #fff);
-  font-family: var(--display);
-  font-size: calc(var(--fit, 1) * 17cqi);
-  line-height: 0.9;
-  text-transform: uppercase;
-  overflow-wrap: anywhere;
-}
-.frame .label {
-  display: grid;
-  gap: 0.6cqi;
-  min-width: 0;
-  font-size: max(6px, 5.2cqi);
-  line-height: 1.25;
-}
-.frame .label b {
-  font-family: var(--display);
-  font-weight: 400;
-  font-size: 7.6cqi;
-  letter-spacing: 0.02em;
-  text-transform: uppercase;
-}
-.frame .label span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.frame .label .date { opacity: 0.6; letter-spacing: 0.04em; }
-/* reflet sur le verre */
-.frame::after {
-  content: "";
-  position: absolute;
-  inset: calc(var(--s) * 0.045);
+/* grain photo + vignettage, par-dessus la 3D */
+.grain {
+  position: fixed;
+  inset: 0;
   pointer-events: none;
-  background: linear-gradient(118deg, rgba(255, 255, 255, 0.22) 0 14%, transparent 30% 72%, rgba(255, 255, 255, 0.07) 84%, transparent);
+  background:
+    radial-gradient(ellipse 120% 95% at 50% 45%, transparent 55%, rgba(10, 14, 10, 0.42)),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .5 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  opacity: 0.6;
+  mix-blend-mode: multiply;
 }
-.frame .plays {
-  position: absolute;
-  right: 8cqi;
-  bottom: 6cqi;
-  font-family: var(--display);
-  font-size: 7cqi;
-  color: var(--red);
-}
-.frame .live {
-  position: absolute;
-  z-index: 2;
-  top: -3cqi;
-  right: -4cqi;
-  padding: 1.6cqi 3.6cqi;
-  background: var(--red);
-  color: #fff;
-  font-family: var(--display);
-  font-size: 6cqi;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  transform: rotate(6deg);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-}
-.frame .live::before {
-  content: "";
-  display: inline-block;
-  width: 3.4cqi;
-  height: 3.4cqi;
-  margin-right: 1.8cqi;
-  border-radius: 50%;
-  background: #fff;
-  vertical-align: 0.4cqi;
-  animation: pulse 1.4s ease-in-out infinite;
-}
-@keyframes pulse { 50% { opacity: 0.25; } }
 
-/* ---------- Le lit ---------- */
-.bed { z-index: 30; overflow: visible; pointer-events: none; }
-
-/* ---------- Message (chargement / vide / erreur) ---------- */
+/* ---------- Message central ---------- */
 .message {
-  z-index: 40;
+  position: fixed;
+  inset: 0;
+  z-index: 20;
   display: grid;
   place-content: center;
   justify-items: center;
   gap: 16px;
+  padding: 24px;
   text-align: center;
+  pointer-events: none;
 }
-.message[hidden], .banner[hidden] { display: none; }
+.message[hidden], .banner[hidden], .tooltip[hidden] { display: none; }
 .message p {
   margin: 0;
   max-width: 22ch;
   padding: 22px 26px;
   background: var(--paper);
   font-family: var(--display);
-  font-size: 34px;
+  font-size: clamp(1.4rem, 1rem + 2vw, 2.2rem);
   line-height: 1.12;
   text-transform: uppercase;
-  transform: rotate(-1.5deg);
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.25), 6px 14px 18px -6px rgba(20, 28, 20, 0.45);
+  transform: rotate(-2deg);
+  box-shadow: 0 2px 3px rgba(0, 0, 0, 0.25), 8px 18px 24px -8px rgba(0, 0, 0, 0.45);
 }
 .message button, .user-form button {
+  pointer-events: auto;
   padding: 10px 16px;
   border: 0;
   border-radius: 999px;
   background: var(--ink);
   color: #fff;
   font-family: var(--display);
-  font-size: 18px;
+  font-size: 1rem;
   letter-spacing: 0.04em;
   text-transform: uppercase;
   cursor: pointer;
 }
 
-/* ---------- Interface (hors décor) ---------- */
+/* ---------- Infobulle au survol d'une affiche ---------- */
+.tooltip {
+  position: fixed;
+  z-index: 30;
+  max-width: 260px;
+  padding: 8px 12px;
+  border-radius: 10px;
+  background: rgba(20, 18, 16, 0.85);
+  color: #fff;
+  font-size: 0.75rem;
+  line-height: 1.35;
+  pointer-events: none;
+  backdrop-filter: blur(6px);
+  transform: translate(14px, 14px);
+}
+.tooltip b { display: block; font-family: var(--display); font-weight: 400; font-size: 1rem; letter-spacing: 0.02em; text-transform: uppercase; }
+
+/* ---------- Interface ---------- */
 .user-form {
   position: fixed;
-  z-index: 100;
+  z-index: 40;
   top: calc(12px + env(safe-area-inset-top));
   right: 12px;
   display: flex;
@@ -389,9 +109,9 @@ body::after {
   gap: 4px;
   padding: 4px;
   border-radius: 999px;
-  background: rgba(246, 243, 237, 0.72);
+  background: rgba(246, 243, 237, 0.7);
   backdrop-filter: blur(10px);
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.18);
 }
 .user-form input {
   width: 9.5rem;
@@ -409,7 +129,7 @@ body::after {
 
 .banner {
   position: fixed;
-  z-index: 100;
+  z-index: 40;
   left: 50%;
   bottom: calc(12px + env(safe-area-inset-bottom));
   width: max-content;
@@ -417,7 +137,6 @@ body::after {
   padding: 8px 14px;
   border-radius: 999px;
   background: rgba(246, 243, 237, 0.9);
-  color: var(--ink);
   font-size: 0.75rem;
   box-shadow: 0 4px 14px rgba(0, 0, 0, 0.2);
   transform: translateX(-50%);
@@ -469,9 +188,4 @@ body::after {
   .detail-head { grid-template-columns: 96px 1fr; gap: 14px; padding: 16px; }
   .detail-head img { width: 96px; height: 96px; }
   .detail-head h2 { font-size: 1.5rem; }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .frame, .neon, .sunlight .leaves, .frame .live::before { animation: none; }
-  .frame { transition: none; }
 }
